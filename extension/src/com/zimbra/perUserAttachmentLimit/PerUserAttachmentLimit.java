@@ -255,7 +255,7 @@ public class PerUserAttachmentLimit extends ExtensionHttpHandler {
         String cmdResult = "";
         try {
             ProcessBuilder pb = new ProcessBuilder()
-                    .command("/usr/sbin/postfwd", "--reload")
+                    .command("/usr/local/sbin/postfwd-reload", "--reload")
                     .redirectErrorStream(true);
             Process p = pb.start();
 
