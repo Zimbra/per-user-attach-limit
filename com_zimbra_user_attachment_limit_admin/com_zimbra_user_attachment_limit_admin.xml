@@ -14,9 +14,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
-<zimlet name="com_zimbra_user_attachment_limit_admin" version="0.0.1" label="User Attachment Limit" description="User Attachment Limit" extension="true">
+<zimlet name="com_zimbra_user_attachment_limit_admin" version="0.0.3" label="User Attachment Limit" description="User Attachment Limit" extension="true">
     <include>com_zimbra_user_attachment_limit_admin.js</include>
     <include>ZaUserAttLimitViewController.js</include>
     <include>ZaUserAttLimitTab.js</include>
+    <include>sorttable.js</include>
     <disableUIUndeploy>FALSE</disableUIUndeploy>
 </zimlet>

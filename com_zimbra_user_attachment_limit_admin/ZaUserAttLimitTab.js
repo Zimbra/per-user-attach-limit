@@ -25,8 +25,8 @@ ZaUserAttLimitTab = function(parent, entry) {
     this.setScrollStyle(Dwt.SCROLL);
 
     document.getElementById('ztab__USER_ATT_LIMIT').innerHTML = '<div style="padding-left:10px"><h1>User Attachment Limit</h1>' +
-    'Here you can set a per-user attachment size limit in kB.<br><br>Set the attachment limit on account <input type="text" id="UserAttLimit-account" list="UserAttLimit-datalist" onclick="this.value=\'\'" onchange="ZaUserAttLimitTab.prototype.setLimitField()" placeholder="user@domain.com">&nbsp;<span id="UserAttLimit-withfrom">to</span>:&nbsp;<input type="number" id="UserAttLimit-limit" placeholder="0"><datalist id="UserAttLimit-datalist"></datalist>&nbsp;&nbsp;<button id="UserAttLimit-btnLimitSave">OK</button>&nbsp;<button id="UserAttLimit-btnLimitApply">Apply on server</button>' +
-    '<br><br><hr>' +
+    'Here you can set a per-user attachment size limit in kB.<br><br>Set the attachment limit on account <input type="text" id="UserAttLimit-account" list="UserAttLimit-datalist" onclick="this.value=\'\'" onchange="ZaUserAttLimitTab.prototype.setLimitField()" placeholder="user@domain.com">&nbsp;<span>to</span>:&nbsp;<input type="number" id="UserAttLimit-limit" placeholder="0"><datalist id="UserAttLimit-datalist"></datalist>&nbsp;&nbsp;<button id="UserAttLimit-btnLimitSave">OK</button>&nbsp;<button id="UserAttLimit-btnLimitApply">Apply on server</button>' +
+    '<br><hr><h2>Configuration</h2><div id="UserAttLimitConfig"></div><br><hr>' +
     '<h2>Status</h2><div id="UserAttLimit-status" style="color:#aaaaaa; font-style: italic;"></div></div>';   
 
 
@@ -37,6 +37,7 @@ ZaUserAttLimitTab = function(parent, entry) {
          if (request.readyState == 4) {
              if (request.status == 200) {
                  window.userAttachmentAccountLimit = JSON.parse(request.responseText);
+                 window.userAttachmentAccountLimitWithOldValues = JSON.parse(request.responseText); //only used for UI purpose
                  ZaUserAttLimitTab.prototype.getAccountsCallback(JSON.parse(request.responseText));
              }
              else {
@@ -97,14 +98,47 @@ ZaUserAttLimitTab.prototype.getAccountsCallback = function (result) {
    });
     
    dataList.innerHTML = "";
+   
    for (var i = 0; i < optionsArray.length; i++) {            
      var option = document.createElement('option');
      option.value = optionsArray[i].value;
      dataList.appendChild(option);
    }
-
+   ZaUserAttLimitTab.prototype.setConfigTable();
    ZaUserAttLimitTab.prototype.status('Ready.');
    return;
+}
+
+ZaUserAttLimitTab.prototype.setConfigTable = function () {
+   var UserAttLimitConfig = document.getElementById('UserAttLimitConfig');
+   var domString = "<table id=\"UserAttLimitTable\" class=\"sortable\"><thead style=\"background-color:#eee; color:#666666; font-weight: bold; cursor: default;\"><tr><td id=\"UserAttLimitTableSort\" class=\"Row\"><b>account&nbsp;</b></td><td class=\"Row\"><b>limit&nbsp;</b></td><td class=\"Row\"><b>new limit&nbsp;</b></td></tr></thead><tbody>";
+   Object.keys(window.userAttachmentAccountLimit).forEach(function(key) {
+      if(window.userAttachmentAccountLimit[key].limit > 0)
+      {
+         var oldLimit = "";
+         var newLimit = "";
+         
+         try {
+            oldLimit = window.userAttachmentAccountLimitWithOldValues[key].limit;
+         } catch(err){
+            oldLimit = 0;
+         }
+         
+         if(window.userAttachmentAccountLimit[key].limit == oldLimit)
+         {
+            newLimit = "";
+         }
+         else
+         {
+            newLimit = window.userAttachmentAccountLimit[key].limit;
+         }
+         
+         domString += "<tr><td class=\"Row\">"+key+"&nbsp;</td><td class=\"Row\">"+oldLimit+"&nbsp;</td><td class=\"Row\" style=\"color:red; font-weight:700\">"+newLimit+"&nbsp;</td></tr>";
+      }   
+   });
+   domString += "</tbody></table>";
+   document.getElementById('UserAttLimitConfig').innerHTML = domString;
+   sorttable.makeSortable(document.getElementById('UserAttLimitTable'));
 }
 
 ZaUserAttLimitTab.prototype.status = function (statusText) {
@@ -115,6 +149,7 @@ ZaUserAttLimitTab.prototype.save = function () {
    if(!document.getElementById('UserAttLimit-account').value == "")
    {
       window.userAttachmentAccountLimit[document.getElementById('UserAttLimit-account').value].limit = document.getElementById('UserAttLimit-limit').value;
+      ZaUserAttLimitTab.prototype.setConfigTable();
    }   
 }
 
@@ -130,6 +165,7 @@ ZaUserAttLimitTab.prototype.apply = function () {
       if (request.readyState == 4) {
           if (request.status == 200) {
                  window.userAttachmentAccountLimit = JSON.parse(request.responseText);
+                 window.userAttachmentAccountLimitWithOldValues = JSON.parse(request.responseText); //only used for UI purpose
                  ZaUserAttLimitTab.prototype.getAccountsCallback(JSON.parse(request.responseText));
           }
           else {
