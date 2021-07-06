@@ -45,17 +45,19 @@ id=SZ003; protocol_state=END-OF-MESSAGE; size>=102400; sasl_username==tod@zmail.
 ```
 
 A ruleset consists of one or multiple rules, which can be loaded from files or passed as command line arguments. 
-Leading or trailing whitespace characters will be ignored. Use '#' to comment your configuration. A ruleset consists of one or multiple rules, which can be loaded from files or passed as command line arguments. Here is a breakdown of the above ruleset - 
-```id=SZ001``` - an unique identifier for each ruleset
-```protocol_state``` - size of message will work reliably only at the END-OF-MESSAGE level
-```size >= 1024``` - message size (including headers) is greater than 1KB
-```sasl_username``` or ```sender``` - User defined for the limit
-```action=DUNNO``` - Action to be performed if the rule is TRUE
+Leading or trailing whitespace characters will be ignored. Use '#' to comment your configuration. A ruleset consists of one or multiple rules, which can be loaded from files or passed as command line arguments. 
+
+Here is a breakdown of the above ruleset - \
+```id=SZ001``` - an unique identifier for each ruleset \
+```protocol_state``` - size of message will work reliably only at the END-OF-MESSAGE level \
+```size >= 1024``` - message size (including headers) is greater than 1KB \
+```sasl_username``` or ```sender``` - User defined for the limit \
+```action=DUNNO``` - Action to be performed if the rule is TRUE \
 
 The Postfix SMTP server has a number of built-in mechanisms to block or accept mail at specific SMTP protocol stages. Detailed information here - http://www.postfix.org/SMTPD_POLICY_README.html
 
 ## Enable postfwd with Zimbra
-To enable postfwd, CBPolicy needs to be enabled - This is not mandatory but the current zmconfigd settings are written in this way and only one additional setting is required to enabled and use postfwd.
+To enable postfwd, ```CBPolicy``` needs to be enabled - This is not mandatory but the current zmconfigd settings are written in this way and only one additional setting is required to enabled and use postfwd.
 
 Add postfwd as a policy service to the postfix end of data restrictions - 
 ```
@@ -63,21 +65,22 @@ Add postfwd as a policy service to the postfix end of data restrictions -
 check_policy_service inet:127.0.0.1:10040
 check_policy_service inet:localhost:%%zimbraCBPolicydBindPort%%
 ```
-Ensure that postfwd is running. You can manually start/stop postfwd using the following commands - 
-Start - ```postfwd --daemon -v -f /etc/postfix/postfwd.cf -u zimbra -g zimbra -p 10040```
-Stop - ```postfwd -k```
-Note:
-ensure that the port matches the end_of_data check policy settings
+Ensure that postfwd is running. You can manually start/stop postfwd using the following commands - \
+Start - ```postfwd --daemon -v -f /etc/postfix/postfwd.cf -u zimbra -g zimbra -p 10040```  \
+Stop - ```postfwd -k```  \
+
+
+Note: Ensure that the port matches the end_of_data check policy settings
 
 Check the services and restart the MTA:
 ```zmprov ms `zmhostanme` zimbraServiceEnabled cbpolicyd && zmmtactlctl restart```
 
-NOTE: The maximum message size defined by zimbraMtaMaxMessageSize should be more than all the values in the ruleset. Example - Default size for all users is 50MB except for the ones defined in the ruleset.
+NOTE: The maximum message size defined by ```zimbraMtaMaxMessageSize``` should be more than all the values in the ruleset. Example - Default size for all users is 50MB except for the ones defined in the ruleset.
 
 
 ### Reference
-·	https://github.com/postfwd/postfwd
-·	https://postfwd.org/doc.html
-·	https://postfwd.org/quick.html
+*	https://github.com/postfwd/postfwd
+*	https://postfwd.org/doc.html
+*	https://postfwd.org/quick.html
 
  
