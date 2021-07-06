@@ -239,12 +239,40 @@ public class PerUserAttachmentLimit extends ExtensionHttpHandler {
                 fw.write("id=SZ99999; protocol_state=END-OF-MESSAGE; action=DUNNO\r\n");
                 fw.flush();
 
+                //finally reload postfwd...
+                String postfwdResult = reloadPostFWD();
+                ZimbraLog.extensions.info("Per User Attachment Limit postfwd command result is:%s", postfwdResult);
+
                 //return it back to the client without changes
                 resp.getOutputStream().print(receivedJSON.toString());
             }
         } catch (Exception e) {
             ZimbraLog.extensions.debug("Per User Attachment Limit Exception is:%s", e.toString());
         }
+    }
+
+    private String reloadPostFWD() {
+        String cmdResult = "";
+        try {
+            ProcessBuilder pb = new ProcessBuilder()
+                    .command("/usr/sbin/postfwd", "--reload")
+                    .redirectErrorStream(true);
+            Process p = pb.start();
+
+            BufferedReader cmdOutputBuffer = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            StringBuilder builder = new StringBuilder();
+            String aux = "";
+            while ((aux = cmdOutputBuffer.readLine()) != null) {
+                builder.append(aux);
+                builder.append(';');
+            }
+            cmdResult = builder.toString();
+        } catch (
+                Exception e) {
+            ZimbraLog.extensions.debug("PerUserAttachmentLimit exception:%s", e.toString());
+        }
+        return cmdResult;
     }
 
 }
