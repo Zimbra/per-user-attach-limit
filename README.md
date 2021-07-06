@@ -33,7 +33,7 @@ Add a bash wrapper for reloading postfwd:
 ```
 cat  /usr/local/sbin/postfwd-reload
 #!/bin/bash
-/usr/sbin/postfwd --reload
+/usr/sbin/postfwd2 --reload
 ```
 
 ## Screenshots
