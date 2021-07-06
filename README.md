@@ -28,6 +28,14 @@ drwxrwxr-x 41 root   root   4.0K Jul  1 12:08 ..
 
 config.json can be an empty file, but Zimbra must have read/write permission to it.
 
+Add a bash wrapper for reloading postfwd: 
+
+```
+cat  /usr/local/sbin/postfwd-reload
+#!/bin/bash
+/usr/sbin/postfwd --reload
+```
+
 ## Screenshots
 
 > ![](screenshots/per-user-admin-ui.png)
