@@ -6,7 +6,14 @@ This document shows how Postfwd can be integrated with Postfix to allow per user
 
 ## Installation
 
-Popular Linux distributions like Debian and Ubuntu have postfwd 1.35 included in their package repository, so only thing you need to do is run apt-get install postfwd. 
+Popular Linux distributions like Debian and Ubuntu have postfwd 1.35 included in their package repository, so only thing you need to do is run ```apt-get install postfwd```.
+
+Also, create a new file called ```postfwd-reload``` in ```/usr/local/sbin``` with the following content:
+```
+#!/bin/bash
+
+/usr/sbin/postfwd --reload
+```
 
 ## Setup
 Postfwd listens on port 10040 and configuration file is located in /etc/postfix/postfwd.cf, but this can be overridden with postfwd arguments. 
@@ -67,8 +74,7 @@ check_policy_service inet:localhost:%%zimbraCBPolicydBindPort%%
 ```
 Ensure that postfwd is running. You can manually start/stop postfwd using the following commands - \
 Start - ```postfwd --daemon -v -f /etc/postfix/postfwd.cf -u zimbra -g zimbra -p 10040```  \
-Stop - ```postfwd -k```  \
-
+Stop - ```postfwd -k```
 
 Note: Ensure that the port matches the end_of_data check policy settings
 
@@ -76,7 +82,6 @@ Check the services and restart the MTA:
 ```zmprov ms `zmhostanme` zimbraServiceEnabled cbpolicyd && zmmtactlctl restart```
 
 NOTE: The maximum message size defined by ```zimbraMtaMaxMessageSize``` should be more than all the values in the ruleset. Example - Default size for all users is 50MB except for the ones defined in the ruleset.
-
 
 ### Reference
 *	https://github.com/postfwd/postfwd
