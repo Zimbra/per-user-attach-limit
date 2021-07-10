@@ -19,7 +19,6 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 
 package com.zimbra.perUserAttachmentLimit;
 
-import com.zimbra.common.service.ServiceException;
 import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.account.*;
 import com.zimbra.cs.extension.ExtensionHttpHandler;
@@ -31,18 +30,15 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.zimbra.cs.service.AuthProvider;
+import com.zimbra.cs.servlet.util.AuthUtil;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
 public class PerUserAttachmentLimit extends ExtensionHttpHandler {
-
     /**
      * The path under which the handler is registered for an extension.
      * return "/perUserAttachmentLimit" makes it show up under:
@@ -56,77 +52,6 @@ public class PerUserAttachmentLimit extends ExtensionHttpHandler {
     }
 
     /**
-     * Retrieves authToken from header or cookie.<br>
-     * JWT is searched for as priority, then cookie.
-     *
-     * @param cookies Request cookies
-     * @param headers Request headers
-     * @return An admin auth token
-     * @throws ServiceException If there are issues creating the admin auth token
-     *                          <p>
-     *                          For the admin authentication, implementation used from:
-     *                          See: ZimbraOS/zm-gql-admin/src/java/com/zimbra/graphql/utilities/GQLAuthUtilities.java
-     */
-    protected static AuthToken getAdminAuthToken(Cookie[] cookies) throws ServiceException {
-        AuthToken authToken = null;
-        final String adminAuthToken = getFromCookie(cookies, "ZM_ADMIN_AUTH_TOKEN");
-        try {
-            authToken = ZimbraAuthToken.getAuthToken(adminAuthToken);
-        } catch (AuthTokenException e) {
-            throw ServiceException.FAILURE("Failed to get auth token", e);
-        }
-        return authToken;
-    }
-
-    /**
-     * Validates an auth token.<br>
-     * Returns false if no authToken is present, or an account cannot
-     * be retrieved with the specified credentials.
-     *
-     * @param authToken The auth token to retrieve the account with
-     * @return True if the specified token is valid and can retrieve an account
-     */
-    protected static boolean isValidToken(AuthToken authToken) {
-        Account account = null;
-        ZimbraLog.extensions.debug("Validating request auth credentials.");
-        if (authToken != null && authToken.isZimbraUser() && authToken.isRegistered()) {
-            try {
-                account = AuthProvider.validateAuthToken(
-                        Provisioning.getInstance(), authToken, false);
-                if (account != null) {
-                    // token is valid if we got an account
-                    ZimbraLog.extensions.debug("Account is:%s", account);
-                    return true;
-                }
-            } catch (final ServiceException e) {
-                ZimbraLog.extensions.debug(
-                        "Failed to retrieve account with request credentials.", e);
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Retrieves a cookie from the cookie jar.
-     *
-     * @param cookies    Cookie jar
-     * @param cookieName The specific cookie we need
-     * @return A cookie
-     */
-    private static String getFromCookie(Cookie[] cookies, String cookieName) {
-        String cookie = null;
-        if (cookies != null) {
-            for (int i = 0; i < cookies.length; i++) {
-                if (cookies[i].getName().equals(cookieName)) {
-                    cookie = cookies[i].getValue();
-                    break;
-                }
-            }
-        }
-        return cookie;
-    }
-
-    /**
      * Processes HTTP GET requests.
      *
      * @param req  request message
@@ -137,9 +62,9 @@ public class PerUserAttachmentLimit extends ExtensionHttpHandler {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         try {
-            final Cookie[] cookies = req.getCookies();
-            final AuthToken token = getAdminAuthToken(cookies);
-            if (isValidToken(token)) {
+            //all authentication is done by AuthUtil.getAuthTokenFromHttpReq, returns null if unauthorized
+            final AuthToken token = AuthUtil.getAuthTokenFromHttpReq(req, resp, true, true);
+            if (token != null) {
                 List<Account> zimbraAccts = null;
 
                 Provisioning prov = Provisioning.getInstance();
@@ -189,30 +114,12 @@ public class PerUserAttachmentLimit extends ExtensionHttpHandler {
      * @throws java.io.IOException
      * @throws javax.servlet.ServletException
      */
-    /* https://stackoverflow.com/questions/2422468/how-to-upload-files-to-server-using-jsp-servlet
-    nano /opt/zimbra/jetty_base/etc/service.web.xml.in
-    nano /opt/zimbra/jetty_base/webapps/service/WEB-INF/web.xml
-    Add multipart config to enable HttpServletRequest.getPart() and HttpServletRequest.getParts()
-        <servlet>
-          <servlet-name>ExtensionDispatcherServlet</servlet-name>
-          <servlet-class>com.zimbra.cs.extension.ExtensionDispatcherServlet</servlet-class>
-          <async-supported>true</async-supported>
-          <load-on-startup>2</load-on-startup>
-          <init-param>
-            <param-name>allowed.ports</param-name>
-            <param-value>8080, 8443, 7071, 7070, 7072, 7443</param-value>
-          </init-param>
-        <multipart-config>
-        </multipart-config>
-        </servlet>
-    And restart Zimbra
-    */
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         try {
-            final Cookie[] cookies = req.getCookies();
-            final AuthToken token = getAdminAuthToken(cookies);
-            if (isValidToken(token)) {
+            //all authentication is done by AuthUtil.getAuthTokenFromHttpReq, returns null if unauthorized
+            final AuthToken token = AuthUtil.getAuthTokenFromHttpReq(req, resp, true, true);
+            if (token != null) {
                 //jsondata should be a valid json string, that we could just dump into the config.json, however as a form of validation, we parse the JSON data and then toString() it.
                 //in case it fails, something went wrong, and the saving will not take place
                 JSONObject receivedJSON = new JSONObject(IOUtils.toString(req.getPart("jsondata").getInputStream(), "UTF-8"));
