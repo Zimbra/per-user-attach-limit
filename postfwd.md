@@ -1,4 +1,4 @@
-# More with Milters
+# Postfwd
 
 The general configuration for message sizes on the Zimbra MTA is to set a global parameter called zimbraMtaMaxMessageSize. This attribute is a global parameter and is the maximum total size of a mail message and is enforced by the mailbox server. The value is propagated to postconf's message_size_limit by zmmtaconfig. The default Zimbra MTA configuration uses the default Postfix message_size_limit of 10MB (i.e. '10240000' bytes). More information here - https://wiki.zimbra.com/wiki/Configuring_maxmessagesize
 
