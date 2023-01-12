@@ -1,6 +1,6 @@
 # Per user attachment size limits
 
-This repo holds the Admin Zimlet and extension that generate a postfix config file like this:
+With this Zimlet and extension you can configure per-user attachment limits. It works out of the box on a single server installation. On a multi-server setup you have to find a way to sync the config file to all your MTA servers. The Admin Zimlet and extension generate a Postfwd config file like this:
 
 ```
 zimbra@zm-zimbra9:/root$ cat /opt/zimbra/conf/postfwd.cf
