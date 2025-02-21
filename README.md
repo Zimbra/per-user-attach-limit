@@ -116,7 +116,7 @@ Stop - ```postfwd -k```
 Note: Ensure that the port matches the end_of_data check policy settings
 
 Check the services and restart the MTA:
-```zmprov ms `zmhostname` zimbraServiceEnabled cbpolicyd && zmmtactl restart```
+```zmprov ms `zmhostname` +zimbraServiceEnabled cbpolicyd && zmmtactl restart```
 
 NOTE: The maximum message size defined by ```zimbraMtaMaxMessageSize``` should be more than all the values in the ruleset. Example - Default size for all users is 50MB except for the ones defined in the ruleset.
 
