@@ -110,13 +110,13 @@ check_policy_service inet:127.0.0.1:10040
 check_policy_service inet:localhost:%%zimbraCBPolicydBindPort%%
 ```
 Ensure that postfwd is running. You can manually start/stop postfwd using the following commands - \
-Start - ```postfwd --daemon -v -f /etc/postfix/postfwd.cf -u zimbra -g zimbra -p 10040```  \
+Start - ```postfwd --daemon -v -f /opt/zimbra/conf/postfwd.cf -u zimbra -g zimbra -p 10040```  \
 Stop - ```postfwd -k```
 
 Note: Ensure that the port matches the end_of_data check policy settings
 
 Check the services and restart the MTA:
-```zmprov ms `zmhostanme` zimbraServiceEnabled cbpolicyd && zmmtactlctl restart```
+```zmprov ms `zmhostname` zimbraServiceEnabled cbpolicyd && zmmtactl restart```
 
 NOTE: The maximum message size defined by ```zimbraMtaMaxMessageSize``` should be more than all the values in the ruleset. Example - Default size for all users is 50MB except for the ones defined in the ruleset.
 
